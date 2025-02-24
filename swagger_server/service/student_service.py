@@ -9,10 +9,12 @@ from tinydb import TinyDB, Query
 # student_db = TinyDB(db_file_path)
 
 from pymongo import MongoClient
+from bson.objectid import ObjectId
+
 
 client = MongoClient("mongodb://localhost:27017/")
-db = client['student_db']
-student_collection = db['students']
+db = client["student_db"]
+student_collection = db["students"]
 
 
 def add(student=None):
@@ -29,16 +31,15 @@ def add(student=None):
     # student.student_id = doc_id
     # return student.student_id
 
-    res = student_collection.find_one({
-        "first_name": student.first_name,
-        "last_name": student.last_name
-    })
+    res = student_collection.find_one(
+        {"first_name": student.first_name, "last_name": student.last_name}
+    )
 
     if res:
         return "already exists", 409
-    
-    doc_id = student_collection.insert_one(student.to_dict())
-    student.student_id = doc_id.inserted_id
+
+    doc_id = student_collection.insert_one(student.to_dict()).inserted_id
+    student.student_id = str(doc_id) 
     return student.student_id
 
 
@@ -55,11 +56,10 @@ def get_by_id(student_id=None, subject=None):
     if not student:
         return "not found", 404
 
-    student["student_id"] = student["_id"] 
-    
+    student["student_id"] = student["_id"]
+
     print(student)
     return student
-
 
 
 def delete(student_id=None):
