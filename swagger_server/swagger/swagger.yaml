@@ -25,7 +25,8 @@ paths:
         style: simple
         explode: false
         schema:
-          type: integer
+          type: string
+          style: uuid
       responses:
         "200":
           description: Successful operation

@@ -39,7 +39,7 @@ def add(student=None):
         return "already exists", 409
 
     doc_id = student_collection.insert_one(student.to_dict()).inserted_id
-    student.student_id = str(doc_id) 
+    student.student_id = str(doc_id)
     return student.student_id
 
 
