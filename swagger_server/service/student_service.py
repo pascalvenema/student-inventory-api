@@ -9,7 +9,6 @@ from tinydb import TinyDB, Query
 # student_db = TinyDB(db_file_path)
 
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 
 
 client = MongoClient("mongodb://localhost:27017/")
@@ -39,7 +38,7 @@ def add(student=None):
         return "already exists", 409
 
     doc_id = student_collection.insert_one(student.to_dict()).inserted_id
-    student.student_id = str(doc_id) 
+    student.student_id = doc_id.inserted_id
     return student.student_id
 
 
