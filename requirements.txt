@@ -9,4 +9,3 @@ six~=1.16.0
 tinydb>=4.7.1
 
 pymongo
-bson
