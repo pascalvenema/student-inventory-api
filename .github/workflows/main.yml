@@ -25,7 +25,24 @@ jobs:
       - name: Check connectivity with curl
         run: |
           echo "Curling the service..."
-          curl -v http://localhost:8080/tutorial/1.0.0/student || true
+          curl -v \ 
+          -X POST \
+          -H "Content-Type: application/json" \
+          -d '{
+            "first_name": "Pascal",
+            "last_name": "Venema",
+            "grade_records": [
+              {
+                "subject_name": "Math",
+                "grade": 8.5
+              },
+              {
+                "subject_name": "Science",
+                "grade": 9.0
+              }
+            ]
+          }' \
+          http://localhost:8080/tutorial/1.0.0/student || true
           # The '|| true' ensures we don't fail the step if it returns non-200.
 
       # grab logs right away (before tests)
