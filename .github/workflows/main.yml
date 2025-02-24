@@ -14,11 +14,11 @@ jobs:
         run: |
           docker build . -t $REPO_NAME/$IMAGE_NAME
 
-      - name: Run docker
+      - name: Build and start services
         run: |
-          # Give it a name so we can docker logs by name
-          docker run -d --name my_student_svc -p 8080:8080 $REPO_NAME/$IMAGE_NAME:latest
-          docker ps
+          docker-compose build
+          docker-compose up -d
+          docker-compose ps
           sleep 5
 
       # test connectivity with curl before running the Postman tests
