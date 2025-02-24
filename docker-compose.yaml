@@ -1,17 +1,14 @@
-version: '3'
+version: "3"
 services:
+  mongo:
+    image: "mongo:4"
+
   student_service:
-    image: student-inventory-api/student_service
-    restart: unless-stopped
+    build: .
+    image: "student-inventory-api/student_service:latest"
+    environment:
+      MONGO_URI: "mongodb://mongo:27017"
     depends_on:
       - mongo
-    environment:
-      MONGO_URI: mongodb://mongo:27017
     ports:
       - "8080:8080"
-
-  mongo:
-    restart: unless-stopped
-    image: mongo:4
-    ports:
-      - "27017:27017"
