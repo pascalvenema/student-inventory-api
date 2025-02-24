@@ -14,6 +14,11 @@ jobs:
         run: |
           docker build . -t $REPO_NAME/$IMAGE_NAME
 
+      - name: Install docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       - name: Build and start services
         run: |
           docker-compose build
