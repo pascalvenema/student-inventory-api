@@ -11,7 +11,7 @@ from tinydb import TinyDB, Query
 from pymongo import MongoClient
 
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017")
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client["student_db"]
 student_collection = db["students"]

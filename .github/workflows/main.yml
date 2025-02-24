@@ -1,8 +1,8 @@
 name: Build Test and push
 on: [push]
 env:
-  IMAGE_NAME: student_service
-  REPO_NAME: student-inventory-api
+  IMAGE_NAME: student-inventory-api/student_service
+  REPO_NAME: pascalvenema
 
 jobs:
   build:
