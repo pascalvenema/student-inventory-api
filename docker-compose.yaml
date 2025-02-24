@@ -2,7 +2,7 @@ version: "3"
 services:
   student_service:
     build: .
-    image: student-inventory-api/student_service
+    image: ${REPO_NAME}/${IMAGE_NAME}
     restart: unless-stopped
     depends_on:
       - mongo
