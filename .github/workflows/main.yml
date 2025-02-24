@@ -55,10 +55,10 @@ jobs:
           http://localhost:8080/tutorial/1.0.0/student || true
 
       # grab logs right away (before tests)
-      - name: Show container logs
-        run: |
-          echo "Showing logs for my_student_svc container..."
-          docker logs my_student_svc
+      # - name: Show container logs
+      #   run: |
+      #     echo "Showing logs for my_student_svc container..."
+      #     docker logs my_student_svc
 
       - name: "Check files existence"
         uses: andstor/file-existence-action@v2
@@ -94,11 +94,11 @@ jobs:
         run: exit 1
 
       # dump logs again AFTER the tests, e.g. if they failed
-      - name: Dump logs on failure
-        if: failure()
-        run: |
-          echo "Post-failure logs from container"
-          docker logs my_student_svc
+      # - name: Dump logs on failure
+      #   if: failure()
+      #   run: |
+      #     echo "Post-failure logs from container"
+      #     docker logs my_student_svc
 
       - name: Login to Container Registry
         uses: docker/login-action@v1
