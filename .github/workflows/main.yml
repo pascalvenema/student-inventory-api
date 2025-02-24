@@ -4,59 +4,82 @@ env:
   IMAGE_NAME: student_service
   REPO_NAME: student-inventory-api
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build docker
-      run: |
-        docker build . -t $REPO_NAME/$IMAGE_NAME
-    - name: run docker
-      run: |
-        docker run -d -p 8080:8080 $REPO_NAME/$IMAGE_NAME:latest && \
-          docker ps && sleep 5
+      - uses: actions/checkout@v2
 
-    - name: "Check files existence"
-      uses: andstor/file-existence-action@v2
-      with:
-        files: "postman/collection.json,postman/environment.json"
-        fail: true
+      - name: Build docker
+        run: |
+          docker build . -t $REPO_NAME/$IMAGE_NAME
 
-    - name: Run API Tests
-      id: run-newman
-      uses: anthonyvscode/newman-action@master
-      with:
-        collection: postman/collection.json
-        environment: postman/environment.json
-        reporters: cli
-        bail: true
+      - name: Run docker
+        run: |
+          # Give it a name so we can docker logs by name
+          docker run -d --name my_student_svc -p 8080:8080 $REPO_NAME/$IMAGE_NAME:latest
+          docker ps
+          sleep 5
 
-    - name: Check if we failed
-      id: fail-check
-      shell: bash
-      env:
-        JSON_DOC: ${{ steps.run-newman.outputs.summary }}
-      run: |
-        printf '%s\n' "$JSON_DOC" > summary.json
-        cat summary.json
-        if grep -q Collection summary.json; then
-          echo "failed=false" >> $GITHUB_OUTPUT;
-        else
-          echo "failed=true" >> $GITHUB_OUTPUT;
-        fi
+      # test connectivity with curl before running the Postman tests
+      - name: Check connectivity with curl
+        run: |
+          echo "Curling the service..."
+          curl -v http://localhost:8080/tutorial/1.0.0/student || true
+          # The '|| true' ensures we don't fail the step if it returns non-200.
 
-    - name: fail if empty
-      if: ${{ steps.fail-check.outputs.failed == 'true' }}
-      run: exit 1
+      # grab logs right away (before tests)
+      - name: Show container logs
+        run: |
+          echo "Showing logs for my_student_svc container..."
+          docker logs my_student_svc
 
-    - name: Login to Container Registry
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: "Check files existence"
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "postman/collection.json,postman/environment.json"
+          fail: true
 
-    - name: Push image to docker hub Container Registry
-      run: | 
+      - name: Run API Tests
+        id: run-newman
+        uses: anthonyvscode/newman-action@master
+        with:
+          collection: postman/collection.json
+          environment: postman/environment.json
+          reporters: cli
+          bail: true
+
+      - name: Check if we failed
+        id: fail-check
+        shell: bash
+        env:
+          JSON_DOC: ${{ steps.run-newman.outputs.summary }}
+        run: |
+          printf '%s\n' "$JSON_DOC" > summary.json
+          cat summary.json
+          if grep -q Collection summary.json; then
+            echo "failed=false" >> $GITHUB_OUTPUT;
+          else
+            echo "failed=true" >> $GITHUB_OUTPUT;
+          fi
+
+      - name: fail if empty
+        if: ${{ steps.fail-check.outputs.failed == 'true' }}
+        run: exit 1
+
+      # dump logs again AFTER the tests, e.g. if they failed
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "Post-failure logs from container"
+          docker logs my_student_svc
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image to docker hub Container Registry
+        run: |
           docker push $REPO_NAME/$IMAGE_NAME
