@@ -61,7 +61,7 @@ def get_by_id(student_id=None, subject=None):
     # print(student)
     # return student
     student["student_id"] = str(student["_id"])
-    # del student["_id"]
+    del student["_id"]
     print(student)
     return student
 
